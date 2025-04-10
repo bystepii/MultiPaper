@@ -91,13 +91,14 @@ public class MultiPaperVelocity {
                 DrainStrategy.class
         );
 
-        Strategy scalingStrategy = strategyManager.loadStrategy(
+        // Redundant with migration strategy
+        /*Strategy scalingStrategy = strategyManager.loadStrategy(
                 "scaling.strategy.",
                 config.getString("scaling.strategy", "none"),
                 Strategy.class,
                 config.getLong("scaling.interval", 60L),
                 TimeUnit.SECONDS
-        );
+        );*/
 
         Strategy migrationStrategy = strategyManager.loadStrategy(
                 "migration.strategy.",
@@ -107,7 +108,8 @@ public class MultiPaperVelocity {
                 TimeUnit.SECONDS
         );
 
-        strategyManager.addStrategy(scalingStrategy, migrationStrategy);
+        //strategyManager.addStrategy(scalingStrategy, migrationStrategy);
+        strategyManager.addStrategy(migrationStrategy);
 
         strategyManager.onStartup(this);
 

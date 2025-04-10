@@ -26,9 +26,9 @@ public class TickLengthV2 extends BaseStrategy {
     @Override
     public void onStartup(MultiPaperVelocity plugin) {
         super.onStartup(plugin);
-        this.msptHigh = Math.toIntExact(config.getLong("scaling.tick_length.high", (long) DEFAULT_MSPT_HIGH));
-        this.msptLow = Math.toIntExact(config.getLong("scaling.tick_length.low", (long) DEFAULT_MSPT_LOW));
-        this.scaleUpRatio = config.getDouble("scaling.scaleUpRatio", DEFAULT_SCALEUP_RATIO);
+        this.msptHigh = Math.toIntExact(config.getLong("performance.tick_length.high", (long) DEFAULT_MSPT_HIGH));
+        this.msptLow = Math.toIntExact(config.getLong("performance.tick_length.low", (long) DEFAULT_MSPT_LOW));
+        this.scaleUpRatio = config.getDouble("performance.scaleUpRatio", DEFAULT_SCALEUP_RATIO);
     }
 
     @Override

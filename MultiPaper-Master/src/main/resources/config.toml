@@ -15,15 +15,27 @@ strategy = "default"
 
 [scaling]
 enabled = true
-#strategy = "none" # none means no scaling
-strategy = "tick_length_v2"
-scaleUpRatio = 0.3
+strategy = "none" # none means no scaling
+#strategy = "tick_length_v2"
 scaling-interval = 30
+scaleUpRatio = 0.3
+scaleDownRatio = 0.2
 
-[scaling.tick_length]
+[performance.tick_length]
 low = 11
 high = 41
 
 [migration]
-strategy = "none" # none means no migration
+# none means no migration
+#strategy = "none" 
+strategy = "easy_strategy"
+# period to review performance
 migration-interval = 60
+# red level, scale up
+redL = 0.6
+interval = 10
+units = "SECONDS"
+# players to transfer
+playersT = 0.2
+
+
