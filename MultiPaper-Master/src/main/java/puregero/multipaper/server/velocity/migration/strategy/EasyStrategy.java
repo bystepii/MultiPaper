@@ -1,16 +1,10 @@
 package puregero.multipaper.server.velocity.migration.strategy;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 
-import puregero.multipaper.server.ServerConnection;
 import puregero.multipaper.server.velocity.BaseStrategy;
 import puregero.multipaper.server.velocity.MultiPaperVelocity;
 
@@ -39,8 +33,9 @@ public class EasyStrategy extends BaseStrategy {
     private static final long DEFAULT_INTERVAL = 60;
     private static final String DEFAULT_UNIT_TIME = "SECONDS";
     private static final double DEFAULT_PLAYERS_TRANSFER = 0.2;
-    private static final int DEFAULT_MIN_SERVERS = 5;
-
+    private static final int DEFAULT_MIN_SERVERS_MIG = 5;
+    private static final int DEFAULT_MIN_SERVERS_DOWN = 2;
+    
     private int msptHigh;
     private int msptLow;
     private double scaleUpRatio;
@@ -106,9 +101,42 @@ public class EasyStrategy extends BaseStrategy {
         long counterOk  = serversOk.length;
 
         if (counterBad == 0) {
-            logger.info("EasyStrategy: All servers OK, nothing to do !");
+            // To consider to scale down servers
+
+            // don't scale down if there is only one server
+            if(allServers.size() <= 1) {
+                logger.info("EasyStrategy: There are no servers to scale down !");
+                return;
+            }
+
+            // if all servers are below the threshold, scale down
+            long counterDown = allServers
+                                .stream()
+                                .filter(server -> ServerConnection
+                                    .getConnection(server.getServerInfo().getName())
+                                    .getTimer()
+                                    .averageInMillis() < msptLow)
+                                .count();
+
+            scaleDownServers  = (long) Math.round(scaleDownRatio * (double) counterDown);
+
+            // delete servers with the lower amount of players, when all servers are ok and if there are more than 2
+            if (counterDown == allServers.size() && allServers.size() > DEFAULT_MIN_SERVERS_DOWN) {
+                logger.info("EasyStrategy: Scale down possible, deleting {} servers!!", scaleDownServers);
+            //    for (int i = 0; i < scaleDownServers; i++) {
+            //     allServers
+            //             .stream()
+            //             .min(Comparator.comparingInt(s -> s.getPlayersConnected().size()))
+            //             .ifPresent(server -> {
+            //                 plugin.getScalingManager().deletePod(server.getServerInfo().getName());
+            //             });
+            //    }
+            }
+
             return;
         }
+
+        // Now to consider migration of players or scale up servers
 
         logger.info("EasyStrategy: servers with degraded tick time: {}", counterBad);
 
@@ -118,7 +146,7 @@ public class EasyStrategy extends BaseStrategy {
         // From here, we have servers with degraded tick time
         // if there is a low nº of servers, ex: 2 servers --> yellow = red = 1
         // we can set a rule: if nº of servers < 5 only scale up is an option
-        if (allServers.size() <= DEFAULT_MIN_SERVERS) {
+        if (allServers.size() <= DEFAULT_MIN_SERVERS_MIG) {
             logger.info("EasyStrategy: Scale up needed, adding {} servers!!", scaleUpServers);
             //plugin.getScalingManager().scaleUp();
             return;
@@ -150,36 +178,7 @@ public class EasyStrategy extends BaseStrategy {
             logger.info("EasyStrategy: Scale up needed, adding {} servers!!", scaleUpServers);
             //plugin.getScalingManager().scaleUp();
         }
-
-        // don't scale down if there is only one server
-        if(allServers.size() <= 1) {
-            logger.info("EasyStrategy: There are no servers to scale down !");
-            return;
-        }
-
-        // if all servers are below the threshold, scale down
-        long counterDown = allServers
-                            .stream()
-                            .filter(server -> ServerConnection
-                                .getConnection(server.getServerInfo().getName())
-                                .getTimer()
-                                .averageInMillis() < msptLow)
-                            .count();
-
-        scaleDownServers  = (long) Math.round(scaleDownRatio * (double) counterDown);
-
-        // delete servers with the lower amount of players, when all servers are ok
-        if (counterDown == allServers.size()) {
-            logger.info("EasyStrategy: Scale down possible, deleting {} servers!!", scaleDownServers);
-            for (int i = 0; i < scaleDownServers; i++) {
-        //     allServers
-        //             .stream()
-        //             .min(Comparator.comparingInt(s -> s.getPlayersConnected().size()))
-        //             .ifPresent(server -> {
-        //                 plugin.getScalingManager().deletePod(server.getServerInfo().getName());
-        //             });
-            }
-        }
+       
     }
 
 }
