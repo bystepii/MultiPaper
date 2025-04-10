@@ -29,8 +29,6 @@ high = 41
 # none means no migration
 #strategy = "none" 
 strategy = "easy_strategy"
-# period to review performance
-migration-interval = 60
 # red level, scale up
 redL = 0.6
 interval = 10

@@ -1,10 +1,16 @@
 package puregero.multipaper.server.velocity.migration.strategy;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 
+import puregero.multipaper.server.ServerConnection;
 import puregero.multipaper.server.velocity.BaseStrategy;
 import puregero.multipaper.server.velocity.MultiPaperVelocity;
 
@@ -131,6 +137,8 @@ public class EasyStrategy extends BaseStrategy {
             //                 plugin.getScalingManager().deletePod(server.getServerInfo().getName());
             //             });
             //    }
+            } else {
+                logger.info("EasyStrategy: Nothing to do !");
             }
 
             return;
